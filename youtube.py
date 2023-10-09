@@ -82,5 +82,36 @@ for PJG in range(len(PLIND)):
 
 PLIND=pd.DataFrame([title, category_id, views, likes, comments, date]).T
 PLIND.columns=['제목','카테고리','조회수','좋아요','댓글 수','날짜']
-PLIND.to_excel('results.xlsx', header=['title', 'category_id', 'views', 'likes', 'comments', 'date'])
+# PLIND.to_excel('results.xlsx', header=['title', 'category_id', 'views', 'likes', 'comments', 'date'])
 print(PLIND)
+
+#코멘트 저장
+comments = list()
+video_id = '7lxH7xW6CoE'
+response = youtube.commentThreads().list(
+    part='snippet,replies',
+    videoId=video_id,
+    maxResults=10
+).execute()
+#print(response)
+
+while response:
+    for item in response['items']:
+        comment = item['snippet']['topLevelComment']['snippet']
+        comments.append(
+            [comment['textDisplay'], comment['authorDisplayName'], comment['publishedAt'], comment['likeCount']])
+
+    if 'nextPageToken' in response:
+        response = youtube.commentThreads().list(part='snippet,replies', videoId=video_id,
+                                                 pageToken=response['nextPageToken'], maxResults=10).execute()
+    else:
+        break
+df = pd.DataFrame(comments)
+# df.to_excel('result.xlsx', header=['comment', 'author', 'date', 'num_likes'], index=None)
+
+xlxs_dir = 'PJG.xlsx' #경로 및 파일명 설정
+
+with pd.ExcelWriter(xlxs_dir) as writer:
+
+    PLIND.to_excel(writer, sheet_name = '좋아요', header=['제목', '카테고리ID', '조회수', '좋아요', '댓글 수', '날짜'], index=None) #raw_data1 시트에 저장
+    df.to_excel(writer, '댓글', header=['텍스트', '작성자', '날짜', '좋아요'], index=None)
