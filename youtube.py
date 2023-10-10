@@ -13,7 +13,7 @@ youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVE
 
 #q에 해당하는 채널 정보 불러오기
 search = youtube.search().list(
-    q="괴물쥐 유튜브",
+    q="빠더너스 BDNS",
     order="relevance",
     part="snippet",
     maxResults=10
@@ -21,7 +21,6 @@ search = youtube.search().list(
 
 #q채널 재생리스트 정보 불러오기
 channel_id = search['items'][0]['snippet']['channelId']
-print(channel_id)
 #UCDBAVzfX3yZ1hah0FHnOoaA
 playlists=youtube.playlists().list(
     channelId= channel_id,
@@ -47,27 +46,23 @@ video = youtube.playlistItems().list(
     maxResults = 10,
 )
 video_list = video.execute()
-
 video_names = []
 video_ids = []
 date = []
 category_id = []
 
 for PLIN in video_list['items']:
-    video_names.append(PLIN['snippet']['title'])
     video_ids.append(PLIN['snippet']['resourceId']['videoId'])
-    date.append(PLIN['snippet']['publishedAt'])
-
-PLIND=pd.DataFrame([date,video_names,video_ids]).T
-PLIND.columns=['Date','Title','IDS']
+PLIND=pd.DataFrame([video_ids]).T
+PLIND.columns=['IDS']
 print(PLIND)
+
 title = []
 category_id = []
 views = []
 likes = []
 comments=[]
 date = []
-
 for PJG in range(len(PLIND)):
     request = youtube.videos().list(
     part='snippet,statistics',
@@ -87,13 +82,13 @@ print(PLIND)
 
 #코멘트 저장
 comments = list()
-video_id = '7lxH7xW6CoE'
+video_id = 'W8pxyQT5cRY'
 response = youtube.commentThreads().list(
     part='snippet,replies',
     videoId=video_id,
     maxResults=10
 ).execute()
-#print(response)
+print(response)
 
 while response:
     for item in response['items']:
@@ -107,11 +102,10 @@ while response:
     else:
         break
 df = pd.DataFrame(comments)
-# df.to_excel('result.xlsx', header=['comment', 'author', 'date', 'num_likes'], index=None)
 
 xlxs_dir = 'PJG.xlsx' #경로 및 파일명 설정
 
 with pd.ExcelWriter(xlxs_dir) as writer:
 
     PLIND.to_excel(writer, sheet_name = '좋아요', header=['제목', '카테고리ID', '조회수', '좋아요', '댓글 수', '날짜'], index=None) #raw_data1 시트에 저장
-    df.to_excel(writer, '댓글', header=['텍스트', '작성자', '날짜', '좋아요'], index=None)
+    df.to_excel(writer, sheet_name = '댓글', header=['텍스트', '작성자', '날짜', '좋아요'], index=None)
