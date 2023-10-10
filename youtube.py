@@ -4,7 +4,7 @@ from oauth2client.tools import argparser
 import pandas as pd
 import re
 
-DEVELOPER_KEY = "AIzaSyAp8tyrs0zw9XBHvf9wmYIxxTqlZsodlt0"  # 유튜브 API 키 값
+DEVELOPER_KEY = "나만의 유튜브 키값"  # 유튜브 API 키 값
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -82,7 +82,7 @@ print(PLIND)
 
 #코멘트 저장
 comments = list()
-video_id = 'W8pxyQT5cRY'
+video_id = '빠더너스 유튜브 video id'
 response = youtube.commentThreads().list(
     part='snippet,replies',
     videoId=video_id,
